@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
-public class UnitSpawner : NetworkBehaviour, IPointerClickHandler
+public class UnitSpawner : NetworkBehaviour//, IPointerClickHandler
 {
     [SerializeField] private GameObject unityPrefab = null;
     [SerializeField] private Transform spawnLocation = null;
@@ -24,12 +25,23 @@ public class UnitSpawner : NetworkBehaviour, IPointerClickHandler
 
     #region Client
 
-    public void OnPointerClick(PointerEventData eventData)
+    //public void OnPointerClick(PointerEventData eventData)
+    //{
+    //    if (eventData.button != PointerEventData.InputButton.Left) return;
+    //    if (!hasAuthority) return;
+
+    //    CMDSpawnUnit();
+    //}
+
+    public void OnMouseDown()
     {
-        if (eventData.button != PointerEventData.InputButton.Left) return;
         if (!hasAuthority) return;
 
-        CMDSpawnUnit();
+        if (Mouse.current.leftButton.wasPressedThisFrame)
+        {
+
+            CMDSpawnUnit();
+        }
     }
 
     #endregion

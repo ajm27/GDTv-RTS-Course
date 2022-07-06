@@ -18,11 +18,23 @@ public class UnitCommandGiver : MonoBehaviour
 
     private void Update()
     {
-        if (!Mouse.current.leftButton.wasPressedThisFrame) return;
+        if (!Mouse.current.rightButton.wasPressedThisFrame) return;
 
         Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
 
         if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask)) return;
+
+        if (hit.collider.TryGetComponent<Targetable>(out Targetable target))
+        {
+            if(target.hasAuthority)
+            {
+                TryMove(hit.point);
+                return;
+            }
+
+            TryTarget(target);
+            return;
+        }
 
         TryMove(hit.point);
     }
@@ -32,6 +44,14 @@ public class UnitCommandGiver : MonoBehaviour
         foreach(Unit unit in unitSelectionHandler.SelectedUnits)
         {
             unit.GetUnitMovement().CmdMove(point);
+        }
+    }
+
+    private void TryTarget(Targetable target)
+    {
+        foreach (Unit unit in unitSelectionHandler.SelectedUnits)
+        {
+            unit.GetTargeter().CmdSetTarget(target.gameObject);
         }
     }
 }
