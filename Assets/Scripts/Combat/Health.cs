@@ -10,14 +10,26 @@ public class Health : NetworkBehaviour
 
     [SyncVar(hook = nameof(HandleHealthUpdated))]
     private int currentHealth;
+    private bool isDead;
 
     public event Action<int, int> ClientOnHealthUpdated;
     public event Action ServerOnDie;
+
+    public bool IsDead()
+    {
+        return isDead;
+    }
 
     #region Server
     public override void OnStartServer()
     {
         currentHealth = maxHealth;
+        UnitBase.ServerOnPlayerDie += ServerHandlePlayerDie;
+    }
+
+    public override void OnStopServer()
+    {
+        UnitBase.ServerOnPlayerDie -= ServerHandlePlayerDie;
     }
 
     [Server]
@@ -30,8 +42,15 @@ public class Health : NetworkBehaviour
         if (currentHealth != 0) return;
 
         ServerOnDie?.Invoke();
+    }
 
-        Debug.Log("We died");
+    private void ServerHandlePlayerDie(int connectionId)
+    {
+        if (connectionToClient.connectionId != connectionId) return;
+
+        isDead = true;
+
+        DealDamage(currentHealth);
     }
 
     #endregion

@@ -21,6 +21,15 @@ public class UnitSelectionHandler : MonoBehaviour
     void Start()
     {
         mainCamera = Camera.main;
+
+        Unit.AuthorityOnUnitDespawned += AuthorityHandleUnitDespawned;
+        GameOverHandler.ClientOnGameOver += ClientHandleGameOver;
+    }
+
+    private void OnDestroy()
+    {
+        Unit.AuthorityOnUnitDespawned -= AuthorityHandleUnitDespawned;
+        GameOverHandler.ClientOnGameOver -= ClientHandleGameOver;
     }
 
     private void Update()
@@ -113,5 +122,15 @@ public class UnitSelectionHandler : MonoBehaviour
                 unit.Select();
             }
         }
+    }
+
+    private void AuthorityHandleUnitDespawned(Unit unit)
+    {
+        SelectedUnits.Remove(unit);
+    }
+
+    private void ClientHandleGameOver(string winnerName)
+    {
+        enabled = false;
     }
 }
